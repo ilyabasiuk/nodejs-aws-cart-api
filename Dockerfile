@@ -18,7 +18,7 @@ FROM node:18-alpine as eb-image
 WORKDIR /usr/src/app
 
 COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist/src ./
+COPY --from=build /usr/src/app/dist ./
 
 EXPOSE 4000
 

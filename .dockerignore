@@ -1,0 +1,8 @@
+.git
+deploy
+node_modules
+test
+sql-queries
+.vscode
+.dockerignore
+Dockerfile
