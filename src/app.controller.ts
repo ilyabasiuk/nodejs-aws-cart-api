@@ -1,12 +1,34 @@
-import { Controller, Get, Request, Post, UseGuards, HttpStatus } from '@nestjs/common';
-import { LocalAuthGuard, AuthService, JwtAuthGuard, BasicAuthGuard } from './auth';
+import {
+  Controller,
+  Get,
+  Request,
+  Post,
+  UseGuards,
+  HttpStatus,
+  Inject,
+} from '@nestjs/common';
+import {
+  LocalAuthGuard,
+  AuthService,
+  JwtAuthGuard,
+  BasicAuthGuard,
+} from './auth';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CartItemEntity } from './entities/cart-item.entity';
+import { CartEntity } from './entities/cart.entity';
 
 @Controller()
 export class AppController {
+  constructor(
+    private authService: AuthService,
+    @InjectRepository(CartItemEntity)
+    private cartItemsRepository: Repository<CartItemEntity>,
+    @InjectRepository(CartEntity)
+    private cartsRepository: Repository<CartEntity>,
+  ) {}
 
-  constructor(private authService: AuthService) {}
-
-  @Get([ '', 'ping' ])
+  @Get(['', 'ping'])
   healthCheck(): any {
     return {
       statusCode: HttpStatus.OK,
@@ -19,7 +41,7 @@ export class AppController {
   async login(@Request() req) {
     const token = this.authService.login(req.user, 'basic');
 
-    return  {
+    return {
       statusCode: HttpStatus.OK,
       message: 'OK',
       data: {
@@ -36,6 +58,29 @@ export class AppController {
       message: 'OK',
       data: {
         user: req.user,
+      },
+    };
+  }
+
+  // Method for testing connection with DB
+  @Get('api/cart-items')
+  async getCartItems(@Request() req) {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'OK',
+      data: {
+        items: await this.cartItemsRepository.find(),
+      },
+    };
+  }
+
+  @Get('api/carts')
+  async getCarts(@Request() req) {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'OK',
+      data: {
+        carts: await this.cartsRepository.find({ relations: ['items'] }),
       },
     };
   }
